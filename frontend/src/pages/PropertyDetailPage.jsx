@@ -35,7 +35,7 @@ export default function PropertyDetailPage() {
         <Link to="/properties" className="btn-secondary !py-2"><ArrowLeft size={16} /> Back</Link>
         <div>
           <h1 className="font-display font-bold text-2xl text-gray-900">{property.name}</h1>
-          <div className="flex items-center gap-1 text-gray-500 text-sm"><MapPin size=14 />{property.address}</div>
+          <div className="flex items-center gap-1 text-gray-500 text-sm"><MapPin size={14} />{property.address}</div>
         </div>
       </div>
 
