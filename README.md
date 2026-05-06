@@ -87,9 +87,7 @@ propms/
 
 ---
 
-## 🚀 Local Development Setup
-
-### 1. Clone & Install
+## 🚀 Local Development Setup### 1. Clone & Install
 
 ```bash
 # Backend
