@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const migrate = require('./config/migrate');
+const seed = require('./config/seed');
 require('dotenv').config();
 
 const routes = require('./routes/index');
@@ -32,21 +34,39 @@ app.use(errorHandler);
 app.use('*', (req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
 });
+(async () => {
+  try {
+    console.log("⏳ Running migrations...");
+    await migrate();
 
+    console.log("🌱 Seeding database...");
+    await seed();
+
+    console.log("✅ Database ready");
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+
+  } catch (error) {
+    console.error("❌ Startup error:", error);
+  }
+})();
 // ===== START =====
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`
-╔══════════════════════════════════════╗
-║         PropMS Backend Server        ║
-╠══════════════════════════════════════╣
-║  Port: ${PORT}                          ║
-║  Env:  ${process.env.NODE_ENV || 'development'}                 ║
-╚══════════════════════════════════════╝
-  `);
 
-  // Initialize cron jobs
-  initCronJobs();
-});
+// app.listen(PORT, () => {
+//   console.log(`
+// ╔══════════════════════════════════════╗
+// ║         PropMS Backend Server        ║
+// ╠══════════════════════════════════════╣
+// ║  Port: ${PORT}                          ║
+// ║  Env:  ${process.env.NODE_ENV || 'development'}                 ║
+// ╚══════════════════════════════════════╝
+//   `);
+
+//   // Initialize cron jobs
+//   initCronJobs();
+// });
 
 module.exports = app;
