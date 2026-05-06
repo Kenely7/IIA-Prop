@@ -160,11 +160,10 @@ async function migrate() {
     console.log('✅ Database schema created successfully');
   } catch (err) {
     console.error('❌ Migration failed:', err);
-    process.exit(1);
+    throw err;
   } finally {
     client.release();
-    pool.end();
   }
 }
 
-migrate();
+module.exports = migrate;
