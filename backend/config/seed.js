@@ -126,14 +126,19 @@ async function seed() {
     console.log('📋 LOGIN CREDENTIALS:');
     console.log(`   Admin: ${process.env.SEED_ADMIN_EMAIL || 'admin@propms.com'} / ${process.env.SEED_ADMIN_PASSWORD || 'Admin@123456'}`);
     console.log('   Manager: manager@propms.com / Manager@123');
-  } catch (err) {
+ } catch (err) {
     await client.query('ROLLBACK');
     console.error('❌ Seed failed:', err);
-    process.exit(1);
+
+    // ❌ DO NOT exit the process
+    throw err;
+
   } finally {
     client.release();
-    pool.end();
+
+    // ❌ DO NOT close pool
+    // pool.end();  <-- REMOVE THIS
   }
 }
 
-seed();
+module.exports = seed;
