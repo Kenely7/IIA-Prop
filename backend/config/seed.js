@@ -10,23 +10,42 @@ async function seed() {
     await client.query('BEGIN');
 
     // Admin user
-    const adminId = uuidv4();
-    const hashedPassword = await bcrypt.hash(process.env.SEED_ADMIN_PASSWORD || 'Admin@123456', 12);
-    await client.query(`
-      INSERT INTO users (id, full_name, email, password_hash, role)
-      VALUES ($1, $2, $3, $4, 'admin')
-      ON CONFLICT (email) DO NOTHING
-    `, [adminId, 'System Administrator', process.env.SEED_ADMIN_EMAIL || 'admin@propms.com', hashedPassword]);
+ const hashedPassword = await bcrypt.hash(
+  process.env.SEED_ADMIN_PASSWORD || 'Admin@123456',
+  12
+);
+
+const adminResult = await client.query(`
+  INSERT INTO users (full_name, email, password_hash, role)
+  VALUES ($1, $2, $3, 'admin')
+  ON CONFLICT (email)
+  DO UPDATE SET email = EXCLUDED.email
+  RETURNING id
+`, [
+  'System Administrator',
+  process.env.SEED_ADMIN_EMAIL || 'admin@propms.com',
+  hashedPassword
+]);
+
+const adminId = adminResult.rows[0].id;
 
     // Manager user
     const managerId = uuidv4();
-    const managerPass = await bcrypt.hash('Manager@123', 12);
-    await client.query(`
-      INSERT INTO users (id, full_name, email, password_hash, role)
-      VALUES ($1, $2, $3, $4, 'manager')
-      ON CONFLICT (email) DO NOTHING
-    `, [managerId, 'Emeka Okafor', 'manager@propms.com', managerPass]);
+ const managerPass = await bcrypt.hash('Manager@123', 12);
 
+const managerResult = await client.query(`
+  INSERT INTO users (full_name, email, password_hash, role)
+  VALUES ($1, $2, $3, 'manager')
+  ON CONFLICT (email)
+  DO UPDATE SET email = EXCLUDED.email
+  RETURNING id
+`, [
+  'Emeka Okafor',
+  'manager@propms.com',
+  managerPass
+]);
+
+const managerId = managerResult.rows[0].id;
     // Properties
     const prop1Id = uuidv4();
     const prop2Id = uuidv4();
