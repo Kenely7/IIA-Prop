@@ -30,7 +30,6 @@ const adminResult = await client.query(`
 const adminId = adminResult.rows[0].id;
 
     // Manager user
-    const managerId = uuidv4();
  const managerPass = await bcrypt.hash('Manager@123', 12);
 
 const managerResult = await client.query(`
