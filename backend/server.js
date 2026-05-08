@@ -19,7 +19,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://your-vercel-app.vercel.app'
+    'http://iia-prop.vercel.app/'
   ],
   credentials: true
 }));
