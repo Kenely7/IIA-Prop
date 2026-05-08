@@ -12,16 +12,9 @@ const { initCronJobs } = require('./jobs/cronJobs');
 const app = express();
 
 // ===== MIDDLEWARE =====
-// app.use(cors({
-//   origin: process.env.FRONTEND_URL || 'http://localhost:3000', 
-//   credentials: true,
-// }));
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://iia-prop.vercel.app/'
-  ],
-  credentials: true
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', 
+  credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -46,8 +39,8 @@ app.use('*', (req, res) => {
     console.log("⏳ Running migrations...");
     await migrate();
 
-    // console.log("🌱 Seeding database...");
-    // await seed();
+    console.log("🌱 Seeding database...");
+    await seed();
 
     console.log("✅ Database ready");
 
