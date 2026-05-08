@@ -71,3 +71,7 @@ const PORT = process.env.PORT || 5000;
 
 module.exports = app;
 
+// app.use(cors({
+//   origin: '*'
+// }));
+
