@@ -39,9 +39,7 @@ app.use('*', (req, res) => {
     console.log("⏳ Running migrations...");
     await migrate();
 
-    console.log("🌱 Seeding database...");
-    await seed();
-
+  
     console.log("✅ Database ready");
 
     app.listen(PORT, () => {
