@@ -118,7 +118,9 @@ const createTenant = async (req, res, next) => {
 // @desc    Update tenant
 // @route   PUT /api/tenants/:id
 const updateTenant = async (req, res, next) => {
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
     const { id } = req.params;
     const {
       full_name, phone, email, nin, next_of_kin_name, next_of_kin_phone,
@@ -126,19 +128,57 @@ const updateTenant = async (req, res, next) => {
       tenancy_start, tenancy_end, status, security_deposit, notes
     } = req.body;
 
-    const result = await pool.query(
+    // Get the current tenant to detect unit changes
+    const current = await client.query('SELECT unit_id FROM tenants WHERE id = $1', [id]);
+    if (!current.rows[0]) return res.status(404).json({ success: false, message: 'Tenant not found.' });
+
+    const oldUnitId = current.rows[0].unit_id;
+    const newUnitId = unit_id || null;
+
+    // If switching to a new unit, verify it's not occupied by another tenant
+    if (newUnitId && newUnitId !== oldUnitId) {
+      const unitCheck = await client.query("SELECT status FROM units WHERE id = $1", [newUnitId]);
+      if (unitCheck.rows[0]?.status === 'occupied') {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ success: false, message: 'Selected unit is already occupied.' });
+      }
+    }
+
+    const result = await client.query(
       `UPDATE tenants SET full_name=$1, phone=$2, email=$3, nin=$4, next_of_kin_name=$5, next_of_kin_phone=$6,
         property_id=$7, unit_id=$8, rent_amount=$9, payment_frequency=$10,
         tenancy_start=$11, tenancy_end=$12, status=$13, security_deposit=$14, notes=$15
        WHERE id=$16 RETURNING *`,
       [full_name, phone, email, nin, next_of_kin_name, next_of_kin_phone,
-       property_id, unit_id, rent_amount, payment_frequency, tenancy_start, tenancy_end,
+       property_id, newUnitId, rent_amount, payment_frequency, tenancy_start, tenancy_end,
        status, security_deposit, notes, id]
     );
 
-    if (!result.rows[0]) return res.status(404).json({ success: false, message: 'Tenant not found.' });
+    // Sync unit statuses when unit assignment changes
+    if (oldUnitId && oldUnitId !== newUnitId) {
+      // Free up old unit
+      await client.query("UPDATE units SET status = 'vacant' WHERE id = $1", [oldUnitId]);
+    }
+    if (newUnitId && newUnitId !== oldUnitId) {
+      // Mark new unit as occupied (only if tenant is active)
+      const tenantStatus = result.rows[0].status;
+      if (tenantStatus === 'active') {
+        await client.query("UPDATE units SET status = 'occupied' WHERE id = $1", [newUnitId]);
+      }
+    }
+    // If status changed to terminated/expired, free the unit
+    if (newUnitId && (status === 'terminated' || status === 'expired')) {
+      await client.query("UPDATE units SET status = 'vacant' WHERE id = $1", [newUnitId]);
+    }
+
+    await client.query('COMMIT');
     res.json({ success: true, tenant: result.rows[0] });
-  } catch (err) { next(err); }
+  } catch (err) {
+    await client.query('ROLLBACK');
+    next(err);
+  } finally {
+    client.release();
+  }
 };
 
 // @desc    Delete tenant

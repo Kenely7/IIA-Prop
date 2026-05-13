@@ -43,6 +43,8 @@ router.put('/properties/:id', protect, authorize('admin', 'manager'), propertyCt
 router.delete('/properties/:id', protect, authorize('admin'), propertyCtrl.deleteProperty);
 router.get('/properties/:id/units', protect, propertyCtrl.getUnits);
 router.post('/properties/:id/units', protect, authorize('admin', 'manager'), propertyCtrl.addUnit);
+router.put('/properties/:id/units/:unitId', protect, authorize('admin', 'manager'), propertyCtrl.updateUnit);
+router.delete('/properties/:id/units/:unitId', protect, authorize('admin', 'manager'), propertyCtrl.deleteUnit);
 
 // ===== TENANTS =====
 router.get('/tenants/expiring', protect, tenantCtrl.getExpiringTenants);

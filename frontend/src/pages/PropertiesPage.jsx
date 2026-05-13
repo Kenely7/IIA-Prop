@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Plus, Search, MapPin, Users, Home, Edit, Trash2, Eye } from 'lucide-react';
+import { Building2, Plus, Search, MapPin, Users, Home, Edit, Trash2, Eye, LayoutGrid } from 'lucide-react';
 import API, { formatCurrency } from '../utils/api';
 import Modal from '../components/common/Modal';
 import ConfirmDialog from '../components/common/ConfirmDialog';
+import UnitsManagerModal from '../components/common/UnitsManagerModal';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -22,6 +23,7 @@ export default function PropertiesPage() {
   const [form, setForm] = useState(initForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [unitsProperty, setUnitsProperty] = useState(null); // property for units manager
 
   const load = async () => {
     setLoading(true);
@@ -148,9 +150,20 @@ export default function PropertiesPage() {
                     <Users size={14} />
                     <span>{p.active_tenants || 0} tenants</span>
                   </div>
-                  <Link to={`/properties/${p.id}`} className="text-sm text-forest font-medium hover:underline flex items-center gap-1">
-                    View details →
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    {canEdit && (
+                      <button
+                        onClick={() => setUnitsProperty(p)}
+                        className="text-sm text-forest font-medium hover:underline flex items-center gap-1"
+                        title="Manage units for this property"
+                      >
+                        <LayoutGrid size={13} /> Units
+                      </button>
+                    )}
+                    <Link to={`/properties/${p.id}`} className="text-sm text-forest font-medium hover:underline flex items-center gap-1">
+                      View →
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
@@ -214,6 +227,12 @@ export default function PropertiesPage() {
         onConfirm={handleDelete}
         title="Delete Property"
         message="This will permanently delete the property and all its units. Active tenants must be removed first."
+      />
+
+      <UnitsManagerModal
+        isOpen={!!unitsProperty}
+        onClose={() => { setUnitsProperty(null); load(); }}
+        property={unitsProperty}
       />
     </div>
   );

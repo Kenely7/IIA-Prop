@@ -158,4 +158,45 @@ const addUnit = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { getProperties, getProperty, createProperty, updateProperty, deleteProperty, getUnits, addUnit };
+// @desc    Update a unit
+// @route   PUT /api/properties/:id/units/:unitId
+const updateUnit = async (req, res, next) => {
+  try {
+    const { unitId } = req.params;
+    const { unit_number, unit_type, bedrooms, bathrooms, size_sqm, rent_amount, status } = req.body;
+
+    // Prevent manually marking occupied unit as vacant if a tenant is in it
+    if (status === 'vacant') {
+      const tenant = await pool.query("SELECT id FROM tenants WHERE unit_id = $1 AND status = 'active'", [unitId]);
+      if (tenant.rows.length > 0) {
+        return res.status(400).json({ success: false, message: 'Cannot mark unit as vacant while an active tenant is assigned.' });
+      }
+    }
+
+    const result = await pool.query(
+      `UPDATE units SET unit_number=$1, unit_type=$2, bedrooms=$3, bathrooms=$4, size_sqm=$5, rent_amount=$6, status=$7
+       WHERE id=$8 RETURNING *`,
+      [unit_number, unit_type, bedrooms, bathrooms, size_sqm, rent_amount, status, unitId]
+    );
+    if (!result.rows[0]) return res.status(404).json({ success: false, message: 'Unit not found.' });
+    res.json({ success: true, unit: result.rows[0] });
+  } catch (err) { next(err); }
+};
+
+// @desc    Delete a unit
+// @route   DELETE /api/properties/:id/units/:unitId
+const deleteUnit = async (req, res, next) => {
+  try {
+    const { id, unitId } = req.params;
+    const tenant = await pool.query("SELECT id FROM tenants WHERE unit_id = $1 AND status = 'active'", [unitId]);
+    if (tenant.rows.length > 0) {
+      return res.status(400).json({ success: false, message: 'Cannot delete unit with an active tenant.' });
+    }
+    await pool.query('DELETE FROM units WHERE id = $1 AND property_id = $2', [unitId, id]);
+    // Recalculate total_units
+    await pool.query('UPDATE properties SET total_units = (SELECT COUNT(*) FROM units WHERE property_id = $1) WHERE id = $1', [id]);
+    res.json({ success: true, message: 'Unit deleted.' });
+  } catch (err) { next(err); }
+};
+
+module.exports = { getProperties, getProperty, createProperty, updateProperty, deleteProperty, getUnits, addUnit, updateUnit, deleteUnit };

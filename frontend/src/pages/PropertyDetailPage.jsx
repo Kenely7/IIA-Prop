@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Users, Building2, Home, Plus } from 'lucide-react';
+import { ArrowLeft, MapPin, Users, Building2, Home, Plus, LayoutGrid } from 'lucide-react';
 import API, { formatCurrency, formatDate } from '../utils/api';
+import UnitsManagerModal from '../components/common/UnitsManagerModal';
 import toast from 'react-hot-toast';
 
 export default function PropertyDetailPage() {
@@ -10,6 +11,7 @@ export default function PropertyDetailPage() {
   const [units, setUnits] = useState([]);
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showUnitsManager, setShowUnitsManager] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -115,12 +117,28 @@ export default function PropertyDetailPage() {
       </div>
 
       {/* Units */}
-      {units.length > 0 && (
-        <div className="card">
-          <h3 className="font-semibold mb-4">Units ({units.length})</h3>
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold">Units ({units.length})</h3>
+          <button
+            onClick={() => setShowUnitsManager(true)}
+            className="btn-primary text-sm py-1.5 px-3"
+          >
+            <LayoutGrid size={14} /> Manage Units
+          </button>
+        </div>
+        {units.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <Building2 size={32} className="mx-auto mb-2 opacity-40" />
+            <p className="text-sm">No units added yet</p>
+            <button onClick={() => setShowUnitsManager(true)} className="btn-secondary text-sm mx-auto mt-3">
+              <Plus size={13} /> Add Units
+            </button>
+          </div>
+        ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
             {units.map((u) => (
-              <div key={u.id} className={`rounded-lg p-3 border ${u.status === 'occupied' ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+              <div key={u.id} className={`rounded-lg p-3 border ${u.status === 'occupied' ? 'bg-green-50 border-green-200' : u.status === 'maintenance' ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="font-medium text-sm">{u.unit_number}</div>
@@ -133,8 +151,21 @@ export default function PropertyDetailPage() {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      <UnitsManagerModal
+        isOpen={showUnitsManager}
+        onClose={() => {
+          setShowUnitsManager(false);
+          // Refresh property data after unit changes
+          API.get(`/properties/${id}`).then(({ data }) => {
+            setProperty(data.property);
+            setUnits(data.units);
+          }).catch(() => {});
+        }}
+        property={property}
+      />
     </div>
   );
 }

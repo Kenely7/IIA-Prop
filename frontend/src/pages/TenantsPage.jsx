@@ -53,7 +53,8 @@ export default function TenantsPage() {
     if (!propertyId) { setUnits([]); return; }
     try {
       const { data } = await API.get(`/properties/${propertyId}/units`);
-      setUnits(data.units.filter(u => u.status !== 'occupied' || u.id === form.unit_id));
+      // Show vacant units + the currently assigned unit (for edit mode)
+      setUnits(data.units.filter(u => u.status === 'vacant' || u.id === form.unit_id));
     } catch { setUnits([]); }
   };
 
@@ -221,11 +222,23 @@ export default function TenantsPage() {
               </select>
             </div>
             <div>
-              <label className="label">Unit (optional)</label>
+              <label className="label">Unit {units.length > 0 ? `(${units.length} vacant available)` : '(optional)'}</label>
               <select className="input" value={form.unit_id} onChange={f('unit_id')} disabled={!form.property_id}>
-                <option value="">Select unit…</option>
-                {units.map(u => <option key={u.id} value={u.id}>{u.unit_number} - {u.status}</option>)}
+                <option value="">No unit / select later…</option>
+                {units.length === 0 && form.property_id && (
+                  <option disabled value="">— No vacant units available —</option>
+                )}
+                {units.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.unit_number} · {u.unit_type || 'unit'} · {u.bedrooms}bd — ₦{Number(u.rent_amount).toLocaleString()}
+                  </option>
+                ))}
               </select>
+              {form.property_id && units.length === 0 && (
+                <p className="text-xs text-amber-600 mt-1">
+                  ⚠ No vacant units found. Add units via Properties → Manage Units.
+                </p>
+              )}
             </div>
             <div>
               <label className="label">Rent Amount (₦) *</label>
