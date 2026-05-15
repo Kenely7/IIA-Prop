@@ -209,8 +209,8 @@ const exportCSV = async (req, res, next) => {
     `;
     const params = [];
     let i = 1;
-    if (start_date) { query += ` AND pay.payment_date >= $${i}`; params.push(start_date); i++; }
-    if (end_date) { query += ` AND pay.payment_date <= $${i}`; params.push(end_date); i++; }
+    if (start_date) { query += ` AND pay.payment_date >= $${i}::date`; params.push(start_date); i++; }
+    if (end_date) { query += ` AND pay.payment_date <= $${i}::date`; params.push(end_date); i++; }
     if (property_id) { query += ` AND pay.property_id = $${i}`; params.push(property_id); i++; }
     query += ' ORDER BY pay.payment_date DESC';
 
