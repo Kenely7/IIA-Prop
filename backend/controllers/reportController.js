@@ -15,9 +15,13 @@ const getReports = async (req, res, next) => {
           COALESCE(SUM(amount) FILTER (WHERE status='pending'), 0) AS total_pending,
           COUNT(*) FILTER (WHERE status='confirmed') AS total_payments,
           AVG(amount) FILTER (WHERE status='confirmed') AS avg_payment
-        FROM payments
-        WHERE payment_date BETWEEN COALESCE($1, '2000-01-01') AND COALESCE($2, NOW()::date) ${propFilter}
-      `, [start_date, end_date]),
+      FROM payments
+        WHERE payment_date BETWEEN 
+        COALESCE($1::date, '2000-01-01'::date)
+        AND 
+        COALESCE($2::date, NOW()::date)
+        ${propFilter}
+`, [start_date || null, end_date || null]),
 
       pool.query(`
         SELECT
@@ -99,8 +103,8 @@ const exportExcel = async (req, res, next) => {
     `;
     const params = [];
     let i = 1;
-    if (start_date) { query += ` AND pay.payment_date >= $${i}`; params.push(start_date); i++; }
-    if (end_date) { query += ` AND pay.payment_date <= $${i}`; params.push(end_date); i++; }
+    if (start_date) { query += ` AND pay.payment_date >= $${i}::date`; params.push(start_date); i++; }
+    if (end_date) { query += ` AND pay.payment_date <= $${i}::date`; params.push(end_date); i++; }
     if (property_id) { query += ` AND pay.property_id = $${i}`; params.push(property_id); i++; }
     query += ' ORDER BY pay.payment_date DESC';
 
