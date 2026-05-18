@@ -4,13 +4,14 @@ require('dotenv').config();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({ to, subject, html, text }) => {
-  if (!process.env.SMTP_USER) {
-    console.log(`[EMAIL MOCK] To: ${to} | Subject: ${subject}`);
-    return { messageId: 'mock-' + Date.now() };
-  }
+  if (!process.env.RESEND_API_KEY) {
+      console.log(`[EMAIL MOCK] To: ${to} | Subject: ${subject}`);
+      return { id: 'mock-' + Date.now() };
+    }
+}
 
   const info = await resend.emails.send({
-    from: process.env.EMAIL_FROM || 'PropMS <noreply@propms.com>',
+    from: process.env.EMAIL_FROM || 'Kenney <propertsoft@gmail.com>',
     to,
     subject,
     html,
