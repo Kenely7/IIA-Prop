@@ -4,21 +4,28 @@ require('dotenv').config();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({ to, subject, html, text }) => {
-  if (!process.env.RESEND_API_KEY) {
+  try {
+    // Mock mode
+    if (!process.env.RESEND_API_KEY) {
       console.log(`[EMAIL MOCK] To: ${to} | Subject: ${subject}`);
       return { id: 'mock-' + Date.now() };
     }
-}
 
-  const info = await resend.emails.send({
-    from: process.env.EMAIL_FROM || 'Kenney <propertsoft@gmail.com>',
-    to,
-    subject,
-    html,
-    text: text || html.replace(/<[^>]*>/g, ''),
-  });
+    const info = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'PropMS <onboarding@resend.dev>',
+      to,
+      subject,
+      html,
+      text: text || html.replace(/<[^>]*>/g, ''),
+    });
 
-  return info;
+    console.log('✅ Email sent:', info);
+
+    return info;
+  } catch (error) {
+    console.error('❌ Resend Email Error:', error);
+    throw error;
+  }
 };
 
 const buildRentDueEmail = (tenant, dueDate) => ({
