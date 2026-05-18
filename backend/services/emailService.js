@@ -1,15 +1,7 @@
-const nodemailer = require('nodemailer');
+const {Resend} = require('resend');
 require('dotenv').config();
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_PORT === '465',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({ to, subject, html, text }) => {
   if (!process.env.SMTP_USER) {
@@ -17,7 +9,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
     return { messageId: 'mock-' + Date.now() };
   }
 
-  const info = await transporter.sendMail({
+  const info = await resend.emails.send({
     from: process.env.EMAIL_FROM || 'PropMS <noreply@propms.com>',
     to,
     subject,
@@ -40,7 +32,7 @@ const buildRentDueEmail = (tenant, dueDate) => ({
         <p>This is a friendly reminder that your rent is due on <strong>${new Date(dueDate).toLocaleDateString('en-NG', { dateStyle: 'long' })}</strong>.</p>
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
           <tr style="background: #e8f5e9;">
-            <td style="padding: 12px; border: 1px solid #ddd;"><strong>Property</strong></td>
+            <td style="padding: 12px; border: 1px solid #751414;"><strong>Property</strong></td>
             <td style="padding: 12px; border: 1px solid #ddd;">${tenant.property_name}</td>
           </tr>
           <tr>
