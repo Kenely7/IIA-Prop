@@ -49,7 +49,7 @@ const buildRentDueEmail = (tenant, tenancy_end) => ({
           </tr>
           <tr style="background: #e8f5e9;">
             <td style="padding: 12px; border: 1px solid #ddd;"><strong>Amount Due</strong></td>
-            <td style="padding: 12px; border: 1px solid #ddd; font-size: 18px; color: #1B4332;"><strong>₦${Number(tenant.rent_amount).toLocaleString()}</strong></td>
+            <td style="padding: 12px; border: 1px solid #ddd; font-size: 18px; color: #1B4332;"><strong>₦${Number(rent_amount).toLocaleString()}</strong></td>
           </tr>
         </table>
         <p>Please make payment on time to avoid penalties.</p>
