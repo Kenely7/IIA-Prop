@@ -28,7 +28,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
   }
 };
 
-const buildRentDueEmail = (tenant, dueDate) => ({
+const buildRentDueEmail = (tenant, tenancy_end) => ({
   subject: `Rent Due Reminder — ${tenant.property_name}`,
   html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -59,7 +59,7 @@ const buildRentDueEmail = (tenant, dueDate) => ({
   `,
 });
 
-const buildOverdueEmail = (tenant, outstanding) => ({
+const buildOverdueEmail = (tenant, rent_amount) => ({
   subject: `⚠️ Overdue Rent Notice — ${tenant.property_name}`,
   html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -72,7 +72,7 @@ const buildOverdueEmail = (tenant, outstanding) => ({
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
           <tr style="background: #fce4e4;">
             <td style="padding: 12px; border: 1px solid #ddd;"><strong>Outstanding Amount</strong></td>
-            <td style="padding: 12px; border: 1px solid #ddd; color: #C0392B; font-size: 20px;"><strong>₦${Number(outstanding).toLocaleString()}</strong></td>
+            <td style="padding: 12px; border: 1px solid #ddd; color: #C0392B; font-size: 20px;"><strong>₦${Number(rent_amount).toLocaleString()}</strong></td>
           </tr>
           <tr>
             <td style="padding: 12px; border: 1px solid #ddd;"><strong>Property</strong></td>
