@@ -37,7 +37,7 @@ const buildRentDueEmail = (tenant, tenancy_end) => ({
       </div>
       <div style="padding: 24px; background: #f9f9f9; border: 1px solid #e0e0e0;">
         <p>Dear <strong>${tenant.full_name}</strong>,</p>
-        <p>This is a friendly reminder that your rent is due on <strong>${new Date(dueDate).toLocaleDateString('en-NG', { dateStyle: 'long' })}</strong>.</p>
+        <p>This is a friendly reminder that your rent is due on <strong>${new Date(tenancy_end).toLocaleDateString('en-NG', { dateStyle: 'long' })}</strong>.</p>
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
           <tr style="background: #e8f5e9;">
             <td style="padding: 12px; border: 1px solid #751414;"><strong>Property</strong></td>
