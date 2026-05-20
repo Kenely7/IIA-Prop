@@ -77,7 +77,7 @@ const buildOverdueEmail = (tenant, rent_amount) => ({
           <tr>
             <td style="padding: 12px; border: 1px solid #ddd;"><strong>Property</strong></td>
             <td style="padding: 12px; border: 1px solid #ddd;">${tenant.property_name}</td>
-          </tr>
+          </tr>th
         </table>
         <p><strong>Please contact us immediately to resolve this.</strong></p>
       </div>

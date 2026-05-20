@@ -28,7 +28,7 @@ const sendReminder = async (tenant, { type, channel = 'both', customMessage }) =
         emailContent = emailService.buildRentDueEmail(tenant, tenant.tenancy_end);
         smsText = smsService.buildRentDueSMS(tenant);
         break;
-      case 'rent_overdue':
+      case 'overdue':
         emailContent = emailService.buildOverdueEmail(tenant, tenant.rent_amount);
         smsText = smsService.buildOverdueSMS(tenant, tenant.outstanding);
         break;
