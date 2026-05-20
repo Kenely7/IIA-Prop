@@ -5,7 +5,7 @@ import { Home, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
-  const [form, setForm] = useState({ email: 'admin@propms.com', password: 'Admin@123456' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const { login, loading } = useAuth();
   const navigate = useNavigate();
