@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('propms_user');
+    const stored = sessionStorage.getItem('propms_user');
     return stored ? JSON.parse(stored) : null;
   });
   const [loading, setLoading] = useState(false);
@@ -14,8 +14,8 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const { data } = await API.post('/auth/login', { email, password });
-      localStorage.setItem('propms_token', data.token);
-      localStorage.setItem('propms_user', JSON.stringify(data.user));
+      sessionStorage.setItem('propms_token', data.token);
+      sessionStorage.setItem('propms_user', JSON.stringify(data.user));
       setUser(data.user);
       return { success: true };
     } catch (err) {
@@ -26,9 +26,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('propms_token');
-    localStorage.removeItem('propms_user');
+    sessionStorage.removeItem('propms_token');
+    sessionStorage.removeItem('propms_user');
     setUser(null);
+    
+     // Optional: force redirect after logout
+    window.location.href = '/login';
   };
 
   const isAdmin = user?.role === 'admin';
