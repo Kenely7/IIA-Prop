@@ -29,9 +29,8 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem('propms_token');
     sessionStorage.removeItem('propms_user');
     setUser(null);
-    
-     // Optional: force redirect after logout
-    window.location.href = '/login';
+
+  
   };
 
   const isAdmin = user?.role === 'admin';
