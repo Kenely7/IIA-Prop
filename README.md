@@ -245,7 +245,10 @@ Authentication and Authorization
 
 
 Login page [Images/Login page.png]
+
 Dashboard page [Images/Dashboard page.png]
+
 Properties page [Images/Properties page.png]
+
 Tenants Page [Images/Tenants page.png]
 
