@@ -243,6 +243,7 @@ Dashboard Analytics
 Rent Tracking
 Authentication and Authorization
 
+LIVE PREVIEW IMAGES:
 
 Login page [Images/Login page.png]
 
