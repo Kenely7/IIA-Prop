@@ -8,7 +8,7 @@ const errorHandler = (err, req, res, next) => {
     return res.status(400).json({ success: false, message: 'Referenced record not found.' });
   }
   if (err.code === '22P02') {
-    return res.status(400).json({ success: false, message: 'Invalid UUID format.' });
+    return res.status(400).json({ success: false, message: 'Invalid value submitted. Please check the form fields.' });
   }
 
   res.status(err.statusCode || 500).json({

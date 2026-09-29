@@ -1,6 +1,9 @@
 const { validationResult } = require('express-validator');
 const pool = require('../config/db');
 
+// Form inputs send '' for empty optional number fields; Postgres needs NULL.
+const num = (v) => (v === '' || v === undefined || v === null ? null : v);
+
 // @desc    Get all properties with stats
 // @route   GET /api/properties
 const getProperties = async (req, res, next) => {
@@ -169,7 +172,7 @@ const addUnit = async (req, res, next) => {
     const result = await pool.query(
       `INSERT INTO units (property_id, unit_number, unit_type, bedrooms, bathrooms, size_sqm, rent_amount)
        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [id, unit_number, unit_type || 'apartment', bedrooms || 1, bathrooms || 1, size_sqm, rent_amount]
+      [id, unit_number, unit_type || 'apartment', num(bedrooms) || 1, num(bathrooms) || 1, num(size_sqm), num(rent_amount)]
     );
 
     // Update total_units count
@@ -197,7 +200,7 @@ const updateUnit = async (req, res, next) => {
     const result = await pool.query(
       `UPDATE units SET unit_number=$1, unit_type=$2, bedrooms=$3, bathrooms=$4, size_sqm=$5, rent_amount=$6, status=$7
        WHERE id=$8 RETURNING *`,
-      [unit_number, unit_type, bedrooms, bathrooms, size_sqm, rent_amount, status, unitId]
+      [unit_number, unit_type, num(bedrooms), num(bathrooms), num(size_sqm), num(rent_amount), status, unitId]
     );
     if (!result.rows[0]) return res.status(404).json({ success: false, message: 'Unit not found.' });
     res.json({ success: true, unit: result.rows[0] });
