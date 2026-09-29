@@ -36,7 +36,7 @@ router.get('/properties', protect, propertyCtrl.getProperties);
 router.post('/properties', protect, authorize('admin', 'manager'), [
   body('name').notEmpty().trim(),
   body('address').notEmpty().trim(),
-  body('total_units').isInt({ min: 1 }),
+  body('total_units').isInt({ min: 1, max: 500 }),
 ], propertyCtrl.createProperty);
 router.get('/properties/:id', protect, propertyCtrl.getProperty);
 router.put('/properties/:id', protect, authorize('admin', 'manager'), propertyCtrl.updateProperty);

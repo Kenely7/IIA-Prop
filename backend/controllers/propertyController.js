@@ -78,13 +78,34 @@ const createProperty = async (req, res, next) => {
     if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
     const { name, address, city, state, property_type, total_units, description, amenities } = req.body;
-    const result = await pool.query(
-      `INSERT INTO properties (name, address, city, state, property_type, total_units, description, amenities, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [name, address, city, state, property_type || 'residential', total_units || 1, description, amenities || [], req.user.id]
-    );
+    const unitCount = parseInt(total_units, 10) || 1;
 
-    res.status(201).json({ success: true, property: result.rows[0] });
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await client.query(
+        `INSERT INTO properties (name, address, city, state, property_type, total_units, description, amenities, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+        [name, address, city, state, property_type || 'residential', unitCount, description, amenities || [], req.user.id]
+      );
+      const property = result.rows[0];
+
+      // Create the vacant units so they can be assigned to tenants straight away.
+      // Rent starts at 0 and can be set later via Manage Units.
+      await client.query(
+        `INSERT INTO units (property_id, unit_number, rent_amount)
+         SELECT $1, 'Unit ' || n, 0 FROM generate_series(1, $2::int) AS n`,
+        [property.id, unitCount]
+      );
+
+      await client.query('COMMIT');
+      res.status(201).json({ success: true, property });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   } catch (err) { next(err); }
 };
 
