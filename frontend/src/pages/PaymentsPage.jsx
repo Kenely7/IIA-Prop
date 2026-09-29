@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import api, { formatCurrency, formatDate } from '../utils/api';
+import api, { formatCurrency, formatDate, formatDateInput } from '../utils/api';
 import Modal from '../components/common/Modal';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
@@ -93,6 +93,9 @@ export default function PaymentsPage() {
       ...f,
       tenant_id: tenantId,
       amount: tenant ? tenant.rent_amount : '',
+      // Default the payment period to the tenant's tenancy period
+      period_from: tenant ? formatDateInput(tenant.tenancy_start) : '',
+      period_to: tenant ? formatDateInput(tenant.tenancy_end) : '',
     }));
   };
 
