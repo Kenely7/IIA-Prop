@@ -154,7 +154,7 @@ export default function TenantsPage() {
                   <tr key={t.id} className="border-b border-gray-50 hover:bg-gray-50 group">
                     <td className="px-4 py-3">
                       <Link to={`/tenants/${t.id}`} className="font-medium text-forest hover:underline">{t.full_name}</Link>
-                      <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5"><Phone size={11} />{t.phone}</div>
+                      {t.phone && <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5"><Phone size={11} />{t.phone}</div>}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
                       {t.property_name}
@@ -193,12 +193,12 @@ export default function TenantsPage() {
               <input className="input" value={form.full_name} onChange={f('full_name')} required />
             </div>
             <div>
-              <label className="label">Phone (+234) *</label>
-              <input className="input" value={form.phone} onChange={f('phone')} required placeholder="+2348012345678" />
+              <label className="label">Phone (+234)</label>
+              <input className="input" value={form.phone || ''} onChange={f('phone')} placeholder="+2348012345678" />
             </div>
             <div>
-              <label className="label">Email</label>
-              <input type="email" className="input" value={form.email} onChange={f('email')} />
+              <label className="label">Email *</label>
+              <input type="email" className="input" value={form.email || ''} onChange={f('email')} required />
             </div>
             <div>
               <label className="label">NIN (optional)</label>

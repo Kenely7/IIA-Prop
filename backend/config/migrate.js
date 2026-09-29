@@ -150,6 +150,9 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN
   CREATE TRIGGER update_units_updated_at BEFORE UPDATE ON units FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- Phone is optional for tenants (email is required instead)
+ALTER TABLE tenants ALTER COLUMN phone DROP NOT NULL;
 `;
 
 async function migrate() {

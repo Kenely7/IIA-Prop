@@ -101,7 +101,7 @@ const createTenant = async (req, res, next) => {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
          CASE WHEN $12::date < NOW() THEN 'expired' ELSE 'active' END)
        RETURNING *`,
-      [full_name, phone, email, nin, next_of_kin_name, next_of_kin_phone,
+      [full_name, phone || null, email, nin, next_of_kin_name, next_of_kin_phone,
        property_id, unit_id, rent_amount, payment_frequency || 'monthly',
        tenancy_start, tenancy_end, security_deposit || 0, notes]
     );
@@ -149,7 +149,7 @@ const updateTenant = async (req, res, next) => {
         property_id=$7, unit_id=$8, rent_amount=$9, payment_frequency=$10,
         tenancy_start=$11, tenancy_end=$12, status=$13, security_deposit=$14, notes=$15
        WHERE id=$16 RETURNING *`,
-      [full_name, phone, email, nin, next_of_kin_name, next_of_kin_phone,
+      [full_name, phone || null, email, nin, next_of_kin_name, next_of_kin_phone,
        property_id, newUnitId, rent_amount, payment_frequency, tenancy_start, tenancy_end,
        status, security_deposit, notes, id]
     );

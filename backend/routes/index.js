@@ -52,7 +52,8 @@ router.get('/tenants/outstanding', protect, tenantCtrl.getOutstandingBalances);
 router.get('/tenants', protect, tenantCtrl.getTenants);
 router.post('/tenants', protect, authorize('admin', 'manager'), [
   body('full_name').notEmpty().trim(),
-  body('phone').notEmpty().matches(/^(\+234|0)[789][01]\d{8}$/).withMessage('Valid Nigerian phone number required'),
+  body('email').trim().isEmail().withMessage('Valid email address required'),
+  body('phone').optional({ checkFalsy: true }).matches(/^(\+234|0)[789][01]\d{8}$/).withMessage('Valid Nigerian phone number required'),
   body('property_id').isUUID(),
   body('rent_amount').isFloat({ min: 1 }),
   body('tenancy_start').isDate(),
